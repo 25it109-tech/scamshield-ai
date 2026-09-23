@@ -23,6 +23,7 @@ function App() {
   const [scanStep, setScanStep] = useState("Initializing threat heuristic engine...");
   const [selectedImage, setSelectedImage] = useState(null);
   const [scanType, setScanType] = useState("text");
+  const [scanResult, setScanResult] = useState(null);
   
   const fileInputRef = useRef(null);
   const canvasRef = useRef(null);
@@ -124,28 +125,32 @@ function App() {
     fileInputRef.current.click();
   };
 
-  const startAnimatedScan = (targetType) => {
+  const startAnimatedScan = async (targetType) => {
     setScanType(targetType);
     setIsScanning(true);
     setErrorMessage("");
     setScanStep("Initializing threat heuristic engine...");
 
-    setTimeout(() => {
-      setScanStep("Parsing extracted payload & indicators...");
-    }, 800);
+    const isUrl = targetType === "url";
 
-    setTimeout(() => {
-      setScanStep("Querying global scam database & blacklists...");
-    }, 1600);
+    try {
+      const response = await fetch("http://localhost:8000/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: isUrl ? null : message,
+          url: isUrl ? message : null,
+        }),
+      });
 
-    setTimeout(() => {
-      setScanStep("Evaluating machine learning risk confidence...");
-    }, 2400);
-
-    setTimeout(() => {
+      const data = await response.json();
+      setScanResult(data);
       setIsScanning(false);
       setShowResult(true);
-    }, 3000);
+    } catch (err) {
+      setIsScanning(false);
+      setErrorMessage("⚠️ Could not reach the server. Is the backend running?");
+    }
   };
 
   const handleMainScan = () => {
@@ -180,50 +185,6 @@ function App() {
     setScanType("text");
   };
 
-  const getScanResultData = () => {
-    if (scanType === "image") {
-      return {
-        badge: "HIGH RISK",
-        title: "Fake QR Code / Phishing Screenshot",
-        detected: [
-          "Suspicious QR URL extracted",
-          "Unverified payment gateway redirect",
-          "Urgent money transfer prompt",
-          "Fake official logo branding"
-        ],
-        why: "The image/QR code redirects users to an unverified portal disguised as an official payment app to steal funds.",
-        action: "Do not scan or pay using this QR code. Do not share OTPs or passwords."
-      };
-    } else if (scanType === "url") {
-      return {
-        badge: "HIGH RISK",
-        title: "Malicious Phishing Link",
-        detected: [
-          "Non-HTTPS / Unsecure connection",
-          "Misspelled bank domain name",
-          "Fake login page pattern",
-          "Domain created recently (< 3 days ago)"
-        ],
-        why: "The URL mimics a legitimate banking website to trick users into entering passwords and account numbers.",
-        action: "Close the page immediately! Never enter sensitive credentials on unverified websites."
-      };
-    } else {
-      return {
-        badge: "MEDIUM RISK",
-        title: "Suspicious Fraudulent Message",
-        detected: [
-          "Panic-inducing language ('Account Blocked')",
-          "Unverified sender phone number",
-          "Shortened untrusted web link",
-          "Threat of service suspension"
-        ],
-        why: "Scammers use panic tactics to make victims act urgently without verifying with official channels.",
-        action: "Do not reply or click links inside this message. Verify directly through official customer care."
-      };
-    }
-  };
-
-  const resultData = getScanResultData();
 
   // Helper component for ticker items with matching SVG shield
   const TickerItem = () => (
@@ -421,31 +382,24 @@ function App() {
             <div className="risk-icon">⚠️</div>
 
             <div>
-              <div className="risk-label">{resultData.badge}</div>
+              <div className="risk-label">{scanResult?.risk_level} RISK</div>
               <div className="risk-title">
-                {resultData.title}
+                {scanResult?.what}
               </div>
             </div>
           </div>
 
           {/* Result Cards */}
           <div className="result-grid">
-            {/* WHAT */}
-            <div className="result-card">
-              <h2>🔍 What was detected?</h2>
-
-              <ul>
-                {resultData.detected.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </div>
-
             {/* WHY */}
             <div className="result-card">
               <h2>❓ Why is it suspicious?</h2>
 
-              <p>{resultData.why}</p>
+              <ul>
+                {scanResult?.why?.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
             </div>
           </div>
 
@@ -453,7 +407,11 @@ function App() {
           <div className="action-card">
             <h2><ShieldIcon className="btn-shield-svg" darkFill={true} /> Recommended Action</h2>
 
-            <p>{resultData.action}</p>
+            <ul>
+              {scanResult?.action?.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
           </div>
 
           {/* Scan Again */}
