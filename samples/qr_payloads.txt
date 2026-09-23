@@ -1,0 +1,5 @@
+upi://pay?pa=fakepayment@upi&pn=PrizeClaim
+upi://pay?pa=scammerchant@upi&pn=KYCUpdate
+upi://pay?pa=unknownuser@upi&pn=RefundProcessing
+upi://pay?pa=deliveryfee@upi&pn=ParcelCharge
+upi://pay?pa=investmentfund@upi&pn=QuickReturns
