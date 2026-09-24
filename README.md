@@ -1,24 +1,101 @@
-<<<<<<< HEAD
-# scamshield-ai
-=======
-<<<<<<< HEAD
-# scamshield-ai
-=======
-# React + Vite
+# ScamShield AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+ScamShield AI is a tool that helps detect and flag potential online scams — analyzing [messages/URLs/emails — specify what it checks] using AI and threat-intelligence APIs to warn users before they fall victim to fraud.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- [e.g., Scan URLs for malicious/phishing content using VirusTotal]
+- [e.g., Analyze suspicious messages using AI (OpenRouter/LLM) to detect scam patterns]
+- [e.g., Real-time risk scoring and explanation]
+- [Add/remove based on what your app actually does]
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Frontend:** React (Vite)
+**Backend:** FastAPI (Python)
+**Database:** SQLite
+**APIs used:** OpenRouter API, VirusTotal API
 
-## Expanding the Oxlint configuration
+## Project Structure
+scamshield-ai/
+├── backend/
+│ ├── main.py
+│ ├── requirements.txt
+│ ├── scamshield.db
+│ └── .env.example
+├── src/
+│ ├── App.jsx
+│ └── components/
+├── package.json
+├── vite.config.js
+└── README.md
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
->>>>>>> 05b6dd0 (Add ScamShield AI frontend for Team NEXORA)
->>>>>>> 93f6dedc8a4ffecc3876a796989a99680881ed36
+
+## Prerequisites
+
+- Python 3.10 or higher
+- Node.js (v18 or higher) and npm
+
+## Setup & Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/<your-username>/scamshield-ai.git
+cd scamshield-ai
+```
+
+### 2. Backend Setup
+
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate        # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Create a `.env` file inside the `backend/` folder with the following:
+
+OPENROUTER_API_KEY=your_openrouter_api_key
+VT_API_KEY=your_virustotal_api_key
+DATABASE_URL=sqlite:///./scamshield.db
+
+
+Start the backend server:
+
+```bash
+uvicorn main:app --reload
+```
+
+The backend will run at `http://localhost:8000`.
+
+### 3. Frontend Setup
+
+Open a new terminal window, then from the project root:
+
+```bash
+npm install
+npm run dev
+```
+
+The frontend will run at `http://localhost:5173`.
+
+## Usage
+
+1. Open the app in your browser at `http://localhost:5173`.
+2. Paste a suspicious message, link, or text into the input field.
+3. Click **Analyze** to run the scan.
+4. Review the risk score and explanation provided to determine if the content is likely a scam.
+
+## API Keys
+
+This project requires free API keys from:
+
+- [OpenRouter](https://openrouter.ai/keys) — for AI-based message analysis
+- [VirusTotal](https://www.virustotal.com/gui/join-us) — for URL and threat scanning
+
+Sign up on both platforms to generate your own keys and add them to your `.env` file as shown above.
+
+## Team
+
+**Team NEXORA**
